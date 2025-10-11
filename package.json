@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "name": "bootpopup5",
+  "description": "Popup dialog for Bootstrap5",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vseryakov/bootpopup.git"
+  },
+  "author": "Vlad Seryakov",
+  "license": "MIT",
+  "keywords": [ "Bootstrap", "dialog" ],
+  "module": "dist/bootpopup.mjs",
+  "unpkg": "dist/bootpopup.min.js",  
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "node scripts/build.js",
+    "devbuild": "node scripts/build.js",
+    "watch": "esbuild builds/cdn.js --bundle --outfile=dist/bootpopup.js --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "parserOptions": {
+        "ecmaVersion": 2022,
+        "sourceType": "module"
+    }
+  }
+}
