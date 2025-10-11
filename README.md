@@ -2,9 +2,10 @@
 
 Popup dialog boxes for Bootstrap5.
 
-See it in action in [Bootpopup - Examples](https://vseryakov.github.io/bootpoup/index.html)
+See it in action in [Bootpopup - Examples](https://vseryakov.github.io/bootpoup/index.html).
 
-This project is a fork of [BootPopup](https://rigon.github.io/bootpopup/)
+
+__This project is a fork of https://rigon.github.io/bootpopup/__
 
 ## Content
 
