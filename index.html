@@ -30,7 +30,7 @@
                 </div>
                 <a class="nav-link" href="https://github.com/vseryakov/bootpopup">
                     <img src="https://github.githubassets.com/favicons/favicon.png" />
-                    Fork on GitHub
+                    GitHub
                 </a>
             </div>
         </div>
@@ -38,7 +38,7 @@
 
     <div class="container mt-5">
      <p>
-        <b>BootPopup</b> is a JavaScript library intended to simplify the task of creating
+        <b>Bootpopup</b> is a JavaScript library intended to simplify the task of creating
         <a href="http://getbootstrap.com/javascript/#modals">Bootstrap modals</a>.
     </p>
 
@@ -80,6 +80,7 @@
     </script>
 
 
+    <p>Multiple popups can be used at the same time</p>
     <pre><code id="code-custom-1" class="js"></code></pre>
     <p><button id="button-custom-1" class="btn btn-primary">Run example</button></p><hr>
 
@@ -103,7 +104,7 @@
                         content: [ { img: {src: d.obj.link, width: "100%", id: "image" }} ],
                         before: () => {
                             if (d.obj.border)
-                                document.getElementById('image').classList.add("rounded-5");
+                                popup.modal.getElementById('image').classList.add("rounded-5");
                         }
                     });
                 }
@@ -121,7 +122,7 @@
     </script>
 
 
-    <p>If the provided functionality is not enough for your case, you can simply mix your HTML:</p>
+    <p>If the provided functionality is not enough for your case, you can simply mix your HTML</p>
     <pre><code id="code-custom-2" class="js"></code></pre>
     <p><button id="button-custom-2" class="btn btn-primary">Run example</button></p><hr>
 
@@ -136,8 +137,13 @@
                 '<p class="lead">Popup dialog boxes for Bootstrap.</p>',
                 '<b>BootPopup</b> is a JavaScript library intended to simplify the task of creating <a href="#">Bootstrap modals</a>',
                 '<p class="lead">Check out the <a href="#examples" data-scrollto="#examples">examples</a> to see how easy it is!</p>',
-                'Give us a rate 1-10:',
-                { number: { label: "Rate", name: "rate" }},
+                ,
+                { h5: { text: 'Give us a rate 1-10:',
+                        class: "d-flex justify-content-between border-bottom py-2",
+                        class_append: "small text-muted",
+                        text_append: "required"
+                } },
+                { number: { label: "Rate", name: "rate", class_group: "row my-3 py-1 border-bottom" }},
                 { select: { label: "A select", name: "select", options: { a:"A", b:"B", c:"C" }}},
                 { checkboxes: { label: "Checkboxes", options: [{ name: "c1", label:"A" }, { name: "c2", label: "B" }, { name: "c3", label: "C"} ]}},
                 { radios: { label: "Radios", name: "radios", options: { a:"A", b:"B", c:"C", d: { label: "SW", switch: 1 } } }}
@@ -154,14 +160,15 @@
     $$("custom-2", custom2);
     </script>
 
+    <p>Check input and control the popup manually</p>
     <pre><code id="code-tabs-1" class="js"></code></pre>
     <p><button id="button-tabs-1" class="btn btn-primary">Run example</button></p><hr>
 
     <script type="text/javascript">
     var tabs1 = () => {
     var content = [
-        { input: { name: "name", label: "Name:", tab_id: "gen" } },
-        { email: { name: "email", label: "Email:", tab_id: "gen" } },
+        { input: { name: "name", label: "Name:", tab_id: "gen", floating: 1 } },
+        { email: { name: "email", label: "Email:", tab_id: "gen", floating: 1 } },
         { input: { name: "street", label: "Street:",  tab_id: "addr" } },
         { input: { name: "city", label: "City:", tab_id: "addr" } },
         { select: { name: "state", label: "State",  tab_id: "addr", caption: "States", options: ["CA","NY","VA","TX"] } },
@@ -169,7 +176,13 @@
         { input: { name: "country", label: "Country:", tab_id: "addr" } },
         { p: { class: "text-muted", text: "Copy your social media handle to add to your contact card.", tab_id: "social" } },
         { input: { name: "facebook", label: "<i class='fab fa-facebook'></i> Facebook:", tab_id: "social" } },
-        { input: { name: "twitter", label: "<i class='fab fa-twitter'></i> Twitter:",  tab_id: "social" } },
+        { input: { name: "twitter", label: "<i class='fab fa-twitter'></i> Twitter:",  tab_id: "social",
+                   text_input_button: 'Show',
+                   attrs_input_button: { click: (ev) => {
+                       var value = popup.modal.querySelector(ev.target.dataset.inputid)?.value;
+                       if (value) window.open('https://x.com/' + value, "_blank")
+                   } }
+        } },
     ];
 
     var popup = bootpopup({
@@ -181,20 +194,88 @@
         },
         alert: 1,
         size: "lg",
+        horizontal: false,
         content: content,
         buttons: ["cancel", "Save"],
         Save: function(d, f) {
-            if (d.email && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,16}$/i.test(d.email)) return popup.showAlert("Invalid email address");
-            if (d.street || d.city || d.state || d.zip || d.country) {
-                if (!d.street || !d.state) return popup.showAlert("Address requires street and state");
+            if (d.email && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,16}$/i.test(d.email)) {
+                return popup.showAlert("Invalid email address");
             }
-            if (!d.name) return popup.showAlert("Must include Name");
-
+            if (d.street || d.city || d.state || d.zip || d.country) {
+                if (!d.street || !d.state) {
+                    return popup.showAlert("Address requires street and state");
+                }
+            }
+            if (!d.name) {
+                return popup.showAlert("Must include Name");
+            }
+            // simulate network save and close manually
+            fetch("").then(async (res) => {
+                popup.close();
+            }).catch(err => {
+                popup.showAlert(err);
+            })
+            return null;
         },
     });
     }
     $$("tabs-1", tabs1);
-  </script>
+    </script>
+
+    <p>Convenient buttons and dropdowns for more complex use cases</p>
+    <pre><code id="code-list-1" class="js"></code></pre>
+    <p><button id="button-list-1" class="btn btn-primary">Run example</button></p><hr>
+
+    <script type="text/javascript">
+    var list1 = () => {
+        var popup = bootpopup({
+        title: "List dropdowns",
+        alert: 1,
+        size: "lg",
+        content: [
+            { radio: {
+                name: "type",
+                label: "Type:",
+                class_group: "row mb-0",
+                input_label: "Standard",
+                value: "STANDARD",
+                switch: 1,
+            } },
+            { radio: {
+                name: "type",
+                label: " ",
+                input_label: "Political",
+                value: "POLITICAL",
+                switch: 1,
+            } },
+            { textarea: {
+                name: "msg",
+                label: "Message",
+                value: "Hi, can you take a short survey?",
+                placeholder: "choose a placeholder form the dropdown",
+                list_input_button: [
+                    "Hi, can you take a short survey?",
+                    "Hi, what is your opinion about ...?",
+                    "Hi, thank you for your response.",
+                ]
+            } },
+            { input: {
+                name: "tags",
+                label: "Tags",
+                class_label: "text-decoration-underline",
+                text_suffix: "comma separated case-sensitive tags",
+                list_input_tags: ["good", "accepted", "rejected"],
+            } },
+        ],
+        buttons: ["cancel", "Save"],
+        Save: (d) => {
+            alert(JSON.stringify(d));
+        },
+    });
+    }
+
+    $$("list-1", list1);
+    </script>
 
   </div>
   <script>hljs.highlightAll();</script>

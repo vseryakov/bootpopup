@@ -76,6 +76,302 @@
     "button"
   ];
   var escapeMap = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#x27;", "`": "&#x60;" };
+  function addElement(self, entry) {
+    var { type, attrs, opts, parent, children, elem, group } = entry;
+    if (!self.options.inputs.includes(type)) {
+      self.options.inputs.push(type);
+    }
+    if (opts.class_append || opts.text_append) {
+      const span = $elem("span", { class: opts.class_append, text: opts.text_append });
+      elem.append(span);
+    }
+    if (opts.list_input_button || opts.list_input_tags) {
+      if (attrs.value && opts.list_input_tags) {
+        $attr(elem, "value", attrs.value.split(/[,|]/).map((x) => x.trim()).filter((x) => x).join(", "));
+      }
+      group = $elem("div", { class: `input-group ${opts.class_input_group || ""}` });
+      group.append(elem);
+      elem = group;
+      const button = $elem("button", {
+        class: opts.class_list_button || self.options.class_list_button,
+        type: "button",
+        "data-bs-toggle": "dropdown",
+        "aria-haspopup": "true",
+        "aria-expanded": "false",
+        text: opts.text_input_button
+      });
+      elem.append(button);
+      var menu = $elem("div", {
+        class: opts.class_input_menu || self.options.class_input_menu,
+        "-overflowY": "auto",
+        "-maxHeight": opts.list_input_mh || self.options.list_input_mh
+      });
+      elem.append(menu);
+      var list = opts.list_input_button || opts.list_input_tags || [];
+      for (const l of list) {
+        let n = l, v = self.escape(n);
+        if (typeof n == "object") v = self.escape(n.value), n = self.escape(n.name);
+        if (n == "-") {
+          menu.appendTo($elem("div", { class: "dropdown-divider" }));
+        } else if (opts.list_input_tags) {
+          const a = $elem("a", {
+            class: "dropdown-item " + (opts.class_list_input_item || ""),
+            role: "button",
+            "data-attrid": "#" + attrs.id,
+            text: n,
+            click: (ev) => {
+              var el = $(ev.target.dataset.attrid);
+              var v2 = ev.target.textContent;
+              if (!el.value) {
+                el.value = v2;
+              } else {
+                var l2 = el.value.split(/[,|]/).map((x) => x.trim()).filter((x) => x);
+                if (!l2.includes(v2)) l2.push(v2);
+                el.value = l2.join(", ");
+              }
+            }
+          }, self.eventOptions);
+          menu.append(a);
+        } else {
+          const a = $elem("a", {
+            class: "dropdown-item " + (opts.class_list_input_item || ""),
+            role: "button",
+            "data-value": v || n,
+            "data-attrid": "#" + attrs.id,
+            text: n,
+            click: (ev) => {
+              $(ev.target.dataset.attrid).value = ev.target.dataset.value;
+            }
+          }, self.eventOptions);
+          menu.append(a);
+        }
+      }
+    } else if (opts.text_input_button) {
+      group = $elem("div", { class: `input-group ${opts.class_input_group || ""}` });
+      group.append(elem);
+      elem = group;
+      const bopts = {
+        class: opts.class_input_button || self.options.class_input_button,
+        type: "button",
+        "data-formid": "#" + self.formid,
+        "data-inputid": "#" + attrs.id,
+        text: opts.text_input_button
+      };
+      for (const b in opts.attrs_input_button) bopts[b] = opts.attrs_input_button[b];
+      const button = $elem("button", bopts);
+      elem.append(button);
+    }
+    for (const k in children) elem.append(children[k]);
+    var class_group = opts.class_group || self.options.class_group;
+    var class_label = (opts.class_label || self.options.class_label) + " " + (attrs.value ? "active" : "");
+    var gopts = { class: class_group, title: attrs.title };
+    for (const p in opts.attrs_group) gopts[p] = opts.attrs_group[p];
+    group = $elem("div", gopts);
+    parent.append(group);
+    if (opts.class_prefix || opts.text_prefix) {
+      const div = $elem("span", { class: opts.class_prefix || "" });
+      if (opts.text_prefix) div.append(...self.sanitize(opts.text_prefix));
+      group.append(div);
+    }
+    if (opts.horizontal !== void 0 ? opts.horizontal : self.options.horizontal) {
+      group.classList.add("row");
+      class_label = " col-form-label " + (opts.size_label || self.options.size_label) + " " + class_label;
+      const lopts = { for: opts.for || attrs.id, class: class_label };
+      for (const p in opts.attrs_label) lopts[p] = opts.attrs_label[p];
+      const label = $elem("label", lopts);
+      label.append(...self.sanitize(opts.label));
+      const input = $elem("div", { class: opts.size_input || self.options.size_input });
+      input.append(elem);
+      group.append(label, input);
+    } else {
+      const lopts = { for: opts.for || attrs.id, class: "form-label " + class_label };
+      for (const p in opts.attrs_label) lopts[p] = opts.attrs_label[p];
+      const label = $elem("label", lopts);
+      label.append(...self.sanitize(opts.label));
+      if (opts.floating) {
+        if (!opts.placeholder) $attr(elem, "placeholder", "");
+        group.classList.add("form-floating");
+        group.append(elem);
+        if (opts.label) group.append(label);
+      } else {
+        if (opts.label) group.append(label);
+        group.append(elem);
+      }
+    }
+    if (opts.text_valid) {
+      group.append($elem("div", { class: "valid-feedback", text: opts.text_valid }));
+    }
+    if (opts.text_invalid) {
+      group.append($elem("div", { class: "invalid-feedback", text: opts.text_invalid }));
+    }
+    if (opts.class_suffix || opts.text_suffix) {
+      const div = $elem("div", { class: opts.class_suffix || self.options.class_suffix });
+      if (opts.text_suffix) div.append(...self.sanitize(opts.text_suffix));
+      group.append(div);
+    }
+    if (opts.autofocus) self.autofocus = elem;
+  }
+  function processEntry(self, type, entry) {
+    var parent = self.form, opts = {}, children = [], attrs = {}, label, elem, html;
+    if (Array.isArray(entry)) {
+      children = entry;
+    } else if (typeof entry == "string") {
+      opts.label = entry;
+    } else {
+      for (const p in entry) opts[p] = entry[p];
+    }
+    for (const p in opts) {
+      if (p == "html") {
+        html = opts.nosanitize ? $parse(opts[p]) : self.sanitize(opts[p]);
+      } else if (!/^(tab_|attrs_|click_|list_|class_|text_|icon_|size_|label|for)/.test(p)) {
+        attrs[p] = opts[p];
+      }
+    }
+    if (!attrs.id) attrs.id = "bpi" + String(Math.random()).substr(2);
+    attrs["data-formid"] = "#" + self.formid;
+    if (opts.tab_id && self.tabs) {
+      parent = self.tabPanels[opts.tab_id] || parent;
+    }
+    if (inputs.includes(type)) {
+      attrs.type = type;
+      type = "input";
+    }
+    switch (type) {
+      case "button":
+      case "submit":
+      case "input":
+      case "textarea":
+        attrs.type = attrs.type === void 0 ? "text" : attrs.type;
+        if (attrs.type == "hidden") {
+          elem = $elem(type, attrs, self.eventOptions);
+          parent.append(elem);
+          break;
+        }
+        if (!attrs.class) attrs.class = self.options["class_" + attrs.type];
+      case "select":
+        if (type == "select" && attrs.options) {
+          if (attrs.caption) {
+            children.push($elem("option", { text: attrs.caption, value: "" }));
+          }
+          for (const j in attrs.options) {
+            const option = {}, opt = attrs.options[j];
+            if (typeof opt == "string") {
+              if (attrs.value === opt) option.selected = true;
+              option.text = self.escape(opt);
+              if (isS(j)) option.value = j;
+              children.push($elem("option", option));
+            } else if (opt?.name) {
+              option.value = opt.value || "";
+              if (opt.selected || attrs.value === option.value) option.selected = true;
+              if (opt.label) option.label = opt.label;
+              if (typeof opt.disabled == "boolean") option.disabled = opt.disabled;
+              option.text = self.escape(opt.name);
+              children.push($elem("option", option));
+            }
+          }
+          delete attrs.options;
+          delete attrs.value;
+        }
+        if (["radio", "checkbox"].includes(attrs.type) && !opts.raw) {
+          if (attrs.checked === false || attrs.checked == 0) delete attrs.checked;
+          label = $elem("label", {
+            class: opts.class_input_btn || opts.class_input_label || "form-check-label",
+            for: opts.for || attrs.id,
+            text: opts.input_label || opts.label
+          });
+          let class_check = "form-check";
+          if (opts.switch) class_check += " form-switch", attrs.role = "switch";
+          if (opts.inline) class_check += " form-check-inline";
+          if (opts.reverse) class_check += " form-check-reverse";
+          if (opts.class_check) class_check += " " + opts.class_check;
+          attrs.class = (opts.class_input_btn ? "btn-check " : "form-check-input ") + (attrs.class || "");
+          elem = $elem("div", { class: class_check });
+          elem.append($elem(type, attrs, self.eventOptions), label);
+          if (opts.class_append || opts.text_append) {
+            label.append($elem("span", { class: opts.class_append || "", text: opts.text_append }));
+          }
+          if (!opts.input_label) delete opts.label;
+        } else {
+          if (["select", "range"].includes(attrs.type)) {
+            attrs.class = `form-${attrs.type} ${attrs.class || ""}`;
+          }
+          attrs.class = attrs.class || "form-control";
+          if (type == "textarea") {
+            delete attrs.value;
+            elem = $elem(type, attrs, self.eventOptions);
+            if (opts.value) elem.append(opts.value);
+          } else {
+            elem = $elem(type, attrs, self.eventOptions);
+          }
+        }
+        addElement(self, { type, attrs, opts, parent, children, elem });
+        break;
+      case "radios":
+      case "checkboxes":
+        elem = $elem("div", { class: opts.class_container });
+        for (const i in attrs.options) {
+          let o = attrs.options[i];
+          if (!o) continue;
+          if (isS(o)) o = { label: o };
+          if (!o.value && type[0] == "r") o.value = i;
+          if (o.checked === false || o.checked == 0) delete o.checked;
+          const title = o.title;
+          const label2 = $elem("label", { class: "form-check-label", for: attrs.id + "-" + i, text: o.label || o.name });
+          o = Object.assign(o, {
+            id: attrs.id + "-" + i,
+            name: o.name || opts.name,
+            class: `form-check-input ${o.class || ""}`,
+            role: opts.switch && "switch",
+            type: attrs.type || type[0] == "r" ? "radio" : "checkbox",
+            label: void 0,
+            title: void 0
+          });
+          let c = "form-check";
+          if (o.switch || opts.switch) c += " form-switch";
+          if (o.inline || opts.inline) c += " form-check-inline";
+          if (o.reverse || opts.reverse) c += " form-check-reverse";
+          if (o.class_check || opts.class_check) c += " " + (o.class_check || opts.class_check);
+          const div = $elem("div", { class: c, title });
+          div.append($elem(`input`, o, self.eventOptions), label2);
+          children.push(div);
+        }
+        for (const p of ["switch", "inline", "reverse", "options", "value", "type"]) delete attrs[p];
+        addElement(self, { type, attrs, opts, parent, children, elem });
+        break;
+      case "alert":
+      case "success":
+        self[type] = elem = $elem("div", attrs, self.eventOptions);
+        parent.append(elem);
+        break;
+      case "row":
+        var row = $elem("div", { class: opts.class_row || self.options.class_row || "row" });
+        parent.append(row);
+        for (const subEntry of children) {
+          const col = $elem("div", { class: subEntry.class_col || self.options.class_col || "col-auto" });
+          row.append(col);
+          const oldParent = parent;
+          parent = col;
+          for (const type2 in subEntry) {
+            processEntry(self, type2, subEntry[type2]);
+          }
+          parent = oldParent;
+        }
+        break;
+      default:
+        elem = $elem(type, attrs, self.eventOptions);
+        if (html) {
+          elem.append(...html);
+        }
+        if (opts.class_append || opts.text_append) {
+          elem.append($elem("span", { class: opts.class_append || "", text: opts.text_append }));
+        }
+        if (opts.name && opts.label) {
+          addElement(self, { type, attrs, opts, parent, children, elem });
+        } else {
+          parent.append(elem);
+        }
+    }
+  }
   function bootpopup(...args) {
     return new Bootpopup(...args);
   }
@@ -181,16 +477,16 @@
       this.show();
     }
     create() {
-      var eventOpts = { signal: this.controller.signal };
+      this.eventOptions = { signal: this.controller.signal };
       var class_dialog = this.options.class_dialog;
       if (["sm", "lg", "xl", "fullscreen"].includes(this.options.size)) class_dialog += " modal-" + this.options.size;
       if (this.options.center) class_dialog += " modal-dialog-centered";
       if (this.options.scroll) class_dialog += " modal-dialog-scrollable";
-      var opts = { class: this.options.class_modal, id: this.options.id || "", tabindex: "-1", "aria-labelledby": "a" + this.formid, "aria-hidden": true };
-      if (this.options.backdrop !== true) opts["data-bs-backdrop"] = typeof this.options.backdrop == "string" ? this.options.backdrop : false;
-      if (!this.options.keyboard) opts["data-bs-keyboard"] = false;
-      for (const p in this.options.attrs_modal) opts[p] = this.options.attrs_modal[p];
-      this.modal = $elem("div", opts, eventOpts);
+      var modalOpts = { class: this.options.class_modal, id: this.options.id || "", tabindex: "-1", "aria-labelledby": "a" + this.formid, "aria-hidden": true };
+      if (this.options.backdrop !== true) modalOpts["data-bs-backdrop"] = typeof this.options.backdrop == "string" ? this.options.backdrop : false;
+      if (!this.options.keyboard) modalOpts["data-bs-keyboard"] = false;
+      for (const p in this.options.attrs_modal) modalOpts[p] = this.options.attrs_modal[p];
+      this.modal = $elem("div", modalOpts, this.eventOptions);
       this.dialog = $elem("div", { class: class_dialog, role: "document" });
       this.content = $elem("div", { class: this.options.class_content + " " + this.options.class_h });
       this.dialog.append(this.content);
@@ -220,12 +516,13 @@
         this.info = $elem("div");
         this.form.append(this.info);
       }
-      var tabs = {}, toggle = /nav-pills/.test(this.options.class_tabs) ? "pill" : "tab";
       if (this.options.tabs) {
+        const toggle = /nav-pills/.test(this.options.class_tabs) ? "pill" : "tab";
         this.tabs = $elem("div", { class: this.options.class_tabs, role: "tablist" });
         this.form.append(this.tabs);
         this.tabContent = $elem("div", { class: this.options.class_tabcontent });
         this.form.append(this.tabContent);
+        this.tabPanels = {};
         for (const p in this.options.tabs) {
           if (!this.options.content.some((o) => {
             for (const k in o) {
@@ -235,7 +532,7 @@
             }
             return 0;
           })) continue;
-          const active = this.options.tab ? this.options.tab == p : !Object.keys(tabs).length;
+          const active = this.options.tab ? this.options.tab == p : !Object.keys(this.tabPanels).length;
           const tid = this.formid + "-tab" + p;
           const a = $elem("a", {
             class: this.options.class_tablink + (active ? " active" : ""),
@@ -250,311 +547,17 @@
               this.options.showtab(event.target.dataset.callback, event);
             },
             text: this.options.tabs[p]
-          }, eventOpts);
+          }, this.eventOptions);
           this.tabs.append(a);
-          tabs[p] = $elem("div", {
+          this.tabPanels[p] = $elem("div", {
             class: "tab-pane fade" + (active ? " show active" : ""),
             id: tid,
             role: "tabpanel",
             "aria-labelledby": tid + "0"
           });
-          this.tabContent.append(tabs[p]);
+          this.tabContent.append(this.tabPanels[p]);
         }
       }
-      var parent = this.form, children, attrs, label, elem, group, html;
-      const addElement = (type) => {
-        if (!this.options.inputs.includes(type)) {
-          this.options.inputs.push(type);
-        }
-        if (opts.class_append || opts.text_append) {
-          const span = $elem("span", { class: opts.class_append, text: opts.text_append });
-          elem.append(span);
-        }
-        if (opts.list_input_button || opts.list_input_tags) {
-          if (attrs.value && opts.list_input_tags) {
-            $attr(elem, "value", attrs.value.split(/[,|]/).map((x) => x.trim()).filter((x) => x).join(", "));
-          }
-          const group2 = $elem("div", { class: `input-group ${opts.class_input_group || ""}` });
-          group2.append(elem);
-          elem = group2;
-          const button = $elem("button", {
-            class: opts.class_list_button || this.options.class_list_button,
-            type: "button",
-            "data-bs-toggle": "dropdown",
-            "aria-haspopup": "true",
-            "aria-expanded": "false",
-            text: opts.text_input_button
-          });
-          elem.append(button);
-          var menu = $elem("div", {
-            class: opts.class_input_menu || this.options.class_input_menu,
-            "-overflowY": "auto",
-            "-maxHeight": opts.list_input_mh || this.options.list_input_mh
-          });
-          elem.append(menu);
-          var list = opts.list_input_button || opts.list_input_tags || [];
-          for (const l of list) {
-            let n = l, v = this.escape(n);
-            if (typeof n == "object") v = this.escape(n.value), n = this.escape(n.name);
-            if (n == "-") {
-              menu.appendTo($elem("div", { class: "dropdown-divider" }));
-            } else if (opts.list_input_tags) {
-              const a = $elem("a", {
-                class: "dropdown-item " + (opts.class_list_input_item || ""),
-                role: "button",
-                "data-attrid": "#" + attrs.id,
-                text: n,
-                click: (ev) => {
-                  var el = $(ev.target.dataset.attrid);
-                  var v2 = ev.target.textContent;
-                  if (!el.value) {
-                    el.value = v2;
-                  } else {
-                    var l2 = el.value.split(/[,|]/).map((x) => x.trim()).filter((x) => x);
-                    if (!l2.includes(v2)) l2.push(v2);
-                    el.value = l2.join(", ");
-                  }
-                }
-              }, eventOpts);
-              menu.append(a);
-            } else {
-              const a = $elem("a", {
-                class: "dropdown-item " + (opts.class_list_input_item || ""),
-                role: "button",
-                "data-value": v || n,
-                "data-attrid": "#" + attrs.id,
-                text: n,
-                click: (ev) => {
-                  $(ev.target.dataset.attrid).value = ev.target.dataset.value;
-                }
-              }, eventOpts);
-              menu.append(a);
-            }
-          }
-        } else if (opts.text_input_button) {
-          const group2 = $elem("div", { class: `input-group ${opts.class_input_group || ""}` });
-          group2.append(elem);
-          elem = group2;
-          const bopts = {
-            class: opts.class_input_button || this.options.class_input_button,
-            type: "button",
-            "data-formid": "#" + this.formid,
-            text: opts.text_input_button
-          };
-          for (const b in opts.attrs_input_button) bopts[b] = opts.attrs_input_button[b];
-          const button = $elem("button", bopts);
-          elem.append(button);
-        }
-        for (const k in children) elem.append(children[k]);
-        var class_group = opts.class_group || this.options.class_group;
-        var class_label = (opts.class_label || this.options.class_label) + " " + (attrs.value ? "active" : "");
-        var gopts = { class: class_group, title: attrs.title };
-        for (const p in opts.attrs_group) gopts[p] = opts.attrs_group[p];
-        group = $elem("div", gopts);
-        parent.append(group);
-        if (opts.class_prefix || opts.text_prefix) {
-          const div = $elem("span", { class: opts.class_prefix || "" });
-          if (opts.text_prefix) div.append(...this.sanitize(opts.text_prefix));
-          group.append(div);
-        }
-        if (opts.horizontal !== void 0 ? opts.horizontal : this.options.horizontal) {
-          group.classList.add("row");
-          class_label = " col-form-label " + (opts.size_label || this.options.size_label) + " " + class_label;
-          const lopts = { for: opts.for || attrs.id, class: class_label };
-          for (const p in opts.attrs_label) lopts[p] = opts.attrs_label[p];
-          const label2 = $elem("label", lopts);
-          label2.append(...this.sanitize(opts.label));
-          const input = $elem("div", { class: opts.size_input || this.options.size_input });
-          input.append(elem);
-          group.append(label2, input);
-        } else {
-          const lopts = { for: opts.for || attrs.id, class: "form-label " + class_label };
-          for (const p in opts.attrs_label) lopts[p] = opts.attrs_label[p];
-          const label2 = $elem("label", lopts);
-          label2.append(...this.sanitize(opts.label));
-          if (opts.floating) {
-            if (!opts.placeholder) $attr(elem, "placeholder", "");
-            group.classList.add("form-floating");
-            group.append(elem);
-            if (opts.label) group.append(label2);
-          } else {
-            if (opts.label) group.append(label2);
-            group.append(elem);
-          }
-        }
-        if (opts.text_valid) {
-          group.append($elem("div", { class: "valid-feedback", text: opts.text_valid }));
-        }
-        if (opts.text_invalid) {
-          group.append($elem("div", { class: "invalid-feedback", text: opts.text_invalid }));
-        }
-        if (opts.class_suffix || opts.text_suffix) {
-          const div = $elem("div", { class: opts.class_suffix || this.options.class_suffix });
-          if (opts.text_suffix) div.append(...this.sanitize(opts.text_suffix));
-          group.append(div);
-        }
-        if (opts.autofocus) this.autofocus = elem;
-      };
-      const processEntry = (type, entry) => {
-        opts = {}, children = [], attrs = {};
-        label = elem = group = html = void 0;
-        if (Array.isArray(entry)) {
-          children = entry;
-        } else if (typeof entry == "string") {
-          opts.label = entry;
-        } else {
-          for (const p in entry) opts[p] = entry[p];
-        }
-        for (const p in opts) {
-          if (p == "html") {
-            html = opts.nosanitize ? $parse(opts[p]) : this.sanitize(opts[p]);
-          } else if (!/^(tab_|attrs_|click_|list_|class_|text_|icon_|size_|label|for)/.test(p)) {
-            attrs[p] = opts[p];
-          }
-        }
-        if (!attrs.id) attrs.id = "bpi" + String(Math.random()).substr(2);
-        attrs["data-formid"] = "#" + this.formid;
-        if (opts.tab_id && tabs[opts.tab_id]) {
-          parent = tabs[opts.tab_id];
-        }
-        if (inputs.includes(type)) {
-          attrs.type = type;
-          type = "input";
-        }
-        switch (type) {
-          case "button":
-          case "submit":
-          case "input":
-          case "textarea":
-            attrs.type = attrs.type === void 0 ? "text" : attrs.type;
-            if (attrs.type == "hidden") {
-              elem = $elem(type, attrs, eventOpts);
-              parent.append(elem);
-              break;
-            }
-            if (!attrs.class) attrs.class = this.options["class_" + attrs.type];
-          case "select":
-            if (type == "select" && attrs.options) {
-              if (attrs.caption) {
-                children.push($elem("option", { text: attrs.caption, value: "" }));
-              }
-              for (const j in attrs.options) {
-                const option = {}, opt = attrs.options[j];
-                if (typeof opt == "string") {
-                  if (attrs.value === opt) option.selected = true;
-                  option.text = this.escape(opt);
-                  if (isS(j)) option.value = j;
-                  children.push($elem("option", option));
-                } else if (opt?.name) {
-                  option.value = opt.value || "";
-                  if (opt.selected || attrs.value === option.value) option.selected = true;
-                  if (opt.label) option.label = opt.label;
-                  if (typeof opt.disabled == "boolean") option.disabled = opt.disabled;
-                  option.text = this.escape(opt.name);
-                  children.push($elem("option", option));
-                }
-              }
-              delete attrs.options;
-              delete attrs.value;
-            }
-            if (["radio", "checkbox"].includes(attrs.type) && !opts.raw) {
-              if (attrs.checked === false || attrs.checked == 0) delete attrs.checked;
-              label = $elem("label", {
-                class: opts.class_input_btn || opts.class_input_label || "form-check-label",
-                for: opts.for || attrs.id,
-                text: opts.input_label || opts.label
-              });
-              let class_check = "form-check";
-              if (opts.switch) class_check += " form-switch", attrs.role = "switch";
-              if (opts.inline) class_check += " form-check-inline";
-              if (opts.reverse) class_check += " form-check-reverse";
-              if (opts.class_check) class_check += " " + opts.class_check;
-              attrs.class = (opts.class_input_btn ? "btn-check " : "form-check-input ") + (attrs.class || "");
-              elem = $elem("div", { class: class_check });
-              elem.append($elem(type, attrs, eventOpts), label);
-              if (opts.class_append || opts.text_append) {
-                label.append($elem("span", { class: opts.class_append || "", text: opts.text_append }));
-              }
-              if (!opts.input_label) delete opts.label;
-            } else {
-              if (["select", "range"].includes(attrs.type)) {
-                attrs.class = `form-${attrs.type} ${attrs.class || ""}`;
-              }
-              attrs.class = attrs.class || "form-control";
-              if (type == "textarea") {
-                delete attrs.value;
-                elem = $elem(type, attrs, eventOpts);
-                if (opts.value) elem.append(opts.value);
-              } else {
-                elem = $elem(type, attrs, eventOpts);
-              }
-            }
-            addElement(type);
-            break;
-          case "radios":
-          case "checkboxes":
-            elem = $elem("div", { class: opts.class_container });
-            for (const i in attrs.options) {
-              let o = attrs.options[i];
-              if (!o) continue;
-              if (isS(o)) o = { label: o };
-              if (!o.value && type[0] == "r") o.value = i;
-              if (o.checked === false || o.checked == 0) delete o.checked;
-              const title = o.title;
-              const label2 = $elem("label", { class: "form-check-label", for: attrs.id + "-" + i, text: o.label || o.name });
-              o = Object.assign(o, {
-                id: attrs.id + "-" + i,
-                name: o.name || opts.name,
-                class: `form-check-input ${o.class || ""}`,
-                role: opts.switch && "switch",
-                type: attrs.type || type[0] == "r" ? "radio" : "checkbox",
-                label: void 0,
-                title: void 0
-              });
-              let c = "form-check";
-              if (o.switch || opts.switch) c += " form-switch";
-              if (o.inline || opts.inline) c += " form-check-inline";
-              if (o.reverse || opts.reverse) c += " form-check-reverse";
-              if (o.class_check || opts.class_check) c += " " + (o.class_check || opts.class_check);
-              const div = $elem("div", { class: c, title });
-              div.append($elem(`input`, o, eventOpts), label2);
-              children.push(div);
-            }
-            for (const p of ["switch", "inline", "reverse", "options", "value", "type"]) delete attrs[p];
-            addElement(type);
-            break;
-          case "alert":
-          case "success":
-            this[type] = elem = $elem("div", attrs, eventOpts);
-            parent.append(elem);
-            break;
-          case "row":
-            var row = $elem("div", { class: opts.class_row || this.options.class_row || "row" });
-            parent.append(row);
-            for (const subEntry of children) {
-              const col = $elem("div", { class: subEntry.class_col || this.options.class_col || "col-auto" });
-              row.append(col);
-              const oldParent = parent;
-              parent = col;
-              for (const type2 in subEntry) {
-                processEntry(type2, subEntry[type2]);
-              }
-              parent = oldParent;
-            }
-            break;
-          default:
-            elem = $elem(type, attrs, eventOpts);
-            if (html) elem.append(...html);
-            if (opts.class_append || opts.text_append) {
-              elem.append($elem("span", { class: opts.class_append || "", text: opts.text_append }));
-            }
-            if (opts.name && opts.label) {
-              addElement(type);
-            } else {
-              parent.append(elem);
-            }
-        }
-      };
       for (const c in this.options.content) {
         const entry = this.options.content[c];
         switch (typeof entry) {
@@ -563,16 +566,18 @@
             break;
           case "object":
             for (const type in entry) {
-              processEntry(type, entry[type]);
+              processEntry(this, type, entry[type]);
             }
             break;
         }
       }
       this.footer = $elem("div", { class: this.options.class_footer });
-      if (this.options.show_footer) this.content.append(this.footer);
+      if (this.options.show_footer) {
+        this.content.append(this.footer);
+      }
       for (const i in this.options.footer) {
         const entry = this.options.footer[i];
-        let div, html2, elem2;
+        let div, html, elem;
         switch (typeof entry) {
           case "string":
             this.footer.append(...this.sanitize(entry));
@@ -581,15 +586,17 @@
             div = $elem("div", { class: this.options.class_options });
             this.footer.append(div);
             for (const type in entry) {
-              const opts2 = typeof entry[type] == "string" ? { text: entry[type] } : entry[type], attrs2 = {};
-              for (const p in opts2) {
+              const opts = typeof entry[type] == "string" ? { text: entry[type] } : entry[type], attrs = {};
+              for (const p in opts) {
                 if (p == "html") {
-                  html2 = opts2.nosanitize ? $parse(opts2[p]) : this.sanitize(opts2[p]);
-                } else if (!/^(type|[0-9]+)$|^(class|text|icon|size)_/.test(p)) attrs2[p] = opts2[p];
+                  html = opts.nosanitize ? $parse(opts[p]) : this.sanitize(opts[p]);
+                } else if (!/^(type|[0-9]+)$|^(class|text|icon|size)_/.test(p)) {
+                  attrs[p] = opts[p];
+                }
               }
-              elem2 = $elem(opts2.type || type, attrs2, eventOpts);
-              if (html2) elem2.append(...html2);
-              div.append(elem2);
+              elem = $elem(opts.type || type, attrs, this.eventOptions);
+              if (html) elem.append(...html);
+              div.append(elem);
             }
             break;
         }
@@ -605,7 +612,7 @@
           click: (event) => {
             this.callback(event.target.dataset.callback, event);
           }
-        }, eventOpts);
+        }, this.eventOptions);
         btn.append(...this.sanitize(this.options["text_" + name] || name));
         if (this.options["icon_" + name]) {
           btn.append($elem("i", { class: this.options["icon_" + name] }));
@@ -615,21 +622,21 @@
       }
       $on(this.modal, "show.bs.modal", (e) => {
         this.options.show.call(this.options.self, e, this);
-      }, eventOpts);
+      }, this.eventOptions);
       $on(this.modal, "shown.bs.modal", (e) => {
         if (this.options.autofocus) {
           var focus = this.autofocus || Array.from($all("input,select,textarea", this.form)).find((el) => !(el.readOnly || el.disabled || el.type == "hidden"));
           if (focus) focus.focus();
         }
         this.options.shown.call(this.options.self || this, e, this);
-      }, eventOpts);
+      }, this.eventOptions);
       $on(this.modal, "hide.bs.modal", (e) => {
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
         }
         e.bootpopupButton = this._callback;
         this.options.dismiss.call(this.options.self, e, this);
-      }, eventOpts);
+      }, this.eventOptions);
       $on(this.modal, "hidden.bs.modal", (e) => {
         e.bootpopupButton = this._callback;
         this.options.complete.call(this.options.self, e, this);
@@ -637,7 +644,7 @@
         bootstrap.Modal.getInstance(this.modal)?.dispose();
         delete this.options.data;
         this.controller.abort();
-      }, eventOpts);
+      }, this.eventOptions);
     }
     show() {
       document.body.append(this.modal);
@@ -659,7 +666,9 @@
         }, opts?.delay || this.delay || 1e4);
       }
       $empty(element).append(alert);
-      if (this.options.scroll) element.scrollIntoView();
+      if (this.options.scroll) {
+        element.scrollIntoView();
+      }
       return null;
     }
     validate() {

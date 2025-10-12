@@ -5,7 +5,7 @@ Popup dialog boxes for Bootstrap5.
 See it in action in [Bootpopup - Examples](https://vseryakov.github.io/bootpoup/index.html).
 
 
-__This project is a fork of https://rigon.github.io/bootpopup/__
+_This project is a fork of https://rigon.github.io/bootpopup/_
 
 ## Content
 
@@ -49,7 +49,7 @@ npm install @vseryakov/bootpopup5
 ### `bootpopup.alert(message[, callback])`
   
 Shows an alert dialog box.
-**Return:** instance of BootPopup window
+**Return:** instance of Bootpopup window
 
 - **message**:
   - `(string)` message of the alert
@@ -60,7 +60,7 @@ Shows an alert dialog box.
 ### `bootpopup.confirm(message[, callback])`
 
 Shows a confirm dialog box.
-**Return:** instance of BootPopup window
+**Return:** instance of Bootpopup window
 
 - **message**:
   - `(string)` message to confirm
@@ -71,7 +71,7 @@ Shows a confirm dialog box.
 ### `bootpopup.prompt(label[, callback])`
 
 Shows a prompt dialog box, asking to input a single value.
-**Return:** instance of BootPopup window
+**Return:** instance of Bootpopup window
 
 - **label**:
   - `(string)` label of the value being asked
@@ -82,7 +82,7 @@ Shows a prompt dialog box, asking to input a single value.
 ### `bootpopup(options)`
 
 Shows a customized dialog box. `bootpopup.alert`, `bootpopup.confirm` and `bootpopup.prompt` are mapped into this function.
-**Return:** instance of BootPopup window
+**Return:** instance of Bootpopup window
 
 **Options:** `(object)`
 
@@ -128,15 +128,10 @@ Shows a customized dialog box. `bootpopup.alert`, `bootpopup.confirm` and `bootp
 | class_body | `string` | `modal-body` | `modal-body p-0` | Change default modal body class
 | class_header | `string` | `modal-header` | `modal-header w-100 text-center` | Change default modal header class
 | class_footer | `string` | `modal-footer` | `modal-footer justify-content-center` | Change default modal footer class
-| class_group | `string` | `mb-3` | `form-group row mb-0` | Chage group class, each element is wrapped insoide a div (group)
 | class_options | `string` | `options flex-grow-1 text-start` | `options` | Wrapper class for the footer content
 | class_alert | `string` | `alert alert-danger fade show` | `alert alert-warning` | Class for popup alerts shown by `showAlert`
 | class_info | `string` | `alert alert-info fade show | `alert alert-info` | Class to show info alerts by `showAlert`
 | class_form | `string` | `` | `d-flex flex-column` | Class for the form wrapper div
-| class_label | `string` | `` | `fs-5` | Class to append to the form labels in addition to `form-label/col-form-label`
-| class_row | `string` | `row` | `row py-3` | Class to use for content type `row`
-| class_col | `string` | `col-auto` | Class to use for columns in the `row` content item
-| class_suffix | `string` | `form-text text-muted text-end` | `w-100 p-1 text-center` | Class to use for content appended to an element
 | class_buttons | `string` | `btn` | `btn btn-sm` | Default base class for all buttons
 | class_button | `string` | `btn-outline-secondary` | `btn-primary` | Default style class for buttons, appended to class_buttons
 | class_ok | `string` | `btn-primary` | `` | Style class for the ok button
@@ -147,9 +142,15 @@ Shows a customized dialog box. `bootpopup.alert`, `bootpopup.confirm` and `bootp
 | class_tabs | `string` | `nav nav-tabs mb-4` | `` | Default class for the tab nav
 | class_tablink | `string` | `nav-link` | `` | Default class for the tab links
 | class_tabcontent | `string` | `tab-content` | `` | Default class for the tab content div
+| class_group | `string` | `row mb-3` | `form-group row mb-0` | Change group class, each element is wrapped by a div (group)
+| class_label | `string` | `` | `fs-5` | Class to append to the form labels in addition to `form-label/col-form-label`
+| class_row | `string` | `row` | `row py-3` | Class to use for content type `row`
+| class_col | `string` | `col-auto` | Class to use for columns in the `row` content item
+| class_suffix | `string` | `form-text text-muted text-end` | `w-100 p-1 text-center` | Class to use for content added to the group
 | class_input_button | `string` | `btn btn-outline-secondary` | `` | Default class for the text_input_button
 | class_list_button | `string` | `btn btn-outline-secondary dropdown-toggle` | `` | Default class for the list_input_button button
 | class_input_menu | `string` | `dropdown-menu bg-light` | `` | Default class for the list_input_button dropdown
+| list_input_mh | `string` | `25vh` | `50vh` | Default max height of the dropdown in the `list_input_button` element
 
 
 #### About the **buttons** option:
@@ -169,10 +170,21 @@ button callback is named the same, for example
 
   Clicking on the `Order` button will call the Order callback.
 
+  Customizing default button labels can be done via `text_NAME` properties, for example
+
+  ```javascript
+  bootpopup({
+    buttons:["ok","cancel"],
+    text_ok: "Submit",
+  })
+  ```
+
+  Now ok will be shown as Submit. With adhoc labeling this is not very usefull but still can be used for default buttons.
+
 
 #### About the **content** option:
 
-The biggest flexibility of BootPopup is the `content` option. The content is wrapped by a form allowing to create complex forms very quickly. When you are submitting data via a dialog box, BootPopup will grab all that data and deliver to you through the callbacks.
+The biggest flexibility of Bootpopup is the `content` option. The content is wrapped by a form allowing to create complex forms very quickly. When you are submitting data via a dialog box, Bootpopup will grab all that data and deliver to you through the callbacks.
 
 1. `content` is an array of objects and each object is represented as an entry of the form. For example, if you
    have the following object:
@@ -196,14 +208,14 @@ The biggest flexibility of BootPopup is the `content` option. The content is wra
    ```
    
    This will create an `input` element with the attributes `type: "text", label: "Title", name: "title", placeholder: "Description"`.
-   Note there is also a special attribute `label`. This attribute is used by BootPopup to create a label for the input form entry.
+   Note there is also a special attribute `label`. This attribute is used by Bootpopup to create a label for the input form entry.
    The above example is equivalent to the following HTML:
    
    ```html
-   <div class="form-group">
-     <label for="title" class="col-sm-2 control-label">Title</label>
+   <div class="form-group mb-3">
+     <label for="title" class="col-form-label col-sm-4">Title</label>
      <div class="col-sm-10">
-       <input label="Title" name="title" id="bootpopup-form-input" placeholder="Description" class="form-control" type="text">
+       <input label="Title" name="title" id="title" placeholder="Description" class="form-control" type="text">
      </div>
    </div>
    ```
@@ -219,7 +231,7 @@ The biggest flexibility of BootPopup is the `content` option. The content is wra
    { text: {label: "Title", name: "title", placeholder: "Description" }}
    ```
 
-   **NOTE:** `select`, `checkboxes` and `radios` have a special attribute named `options`. You can specify a list of options to be shown in 2 formats:
+4. `select`, `checkboxes` and `radios` have a special attribute named `options`. You can specify a list of options to be shown in 2 formats:
      - an object where the key is used as value by the input and the value is the text displayed
      - a list of objects with { label:, value:, name: } properties
 
@@ -229,9 +241,9 @@ The biggest flexibility of BootPopup is the `content` option. The content is wra
    { checkboxes: { label: "Checkboxes", options: [ { name: "c1", label: "A" }, { name: "c2", label: "C", value: 2 } ]}}
    ```
    
-   `select` with attribute `multiple` is also supported.
+   `select` with attribute `multiple` is also supported. For multi-select to make an item selected the value must match or property selected must be true in case of objects: `{ name: .., value:.., selected: true }`
 
-4. Another useful feature is the ability to support functions directly as an attribute. Take the following `button` example:
+5. Another useful feature is the ability to support functions directly as an attribute. Take the following `button` example:
    
    ```javascript
    { button: {name: "button", value: "Open image", class: "btn btn-info", click: (event) => {
@@ -241,14 +253,45 @@ The biggest flexibility of BootPopup is the `content` option. The content is wra
    ```
    This will create a `onclick` event for the button. The reference for the object is passed as argument to the function.
 
-5. You can also insert HTML strings directly. Instead of writing an JS object, write the HTML:
+6. You can also insert HTML strings directly. Instead of writing an JS object, write the HTML:
 
    ```javascript
    '<p class="lead">Popup dialog boxes for Bootstrap.</p>'
    ```
+
+7. List of special element properties:
+   - `class` - to customize the style of the element just provide all classes in the `class` property, if empty `form-control` is set
+   - `text` - set element's `textContent`
+   - `html` - parse and add DOM elements after running thru sanitizer
+   - `autofocus` - make this element focused on show
+   - `nosanitize` - do not run sanitizer for labels or html if installed
+   - `floating` - add `form-floating` to the group to make labels floating
+   - `checked` - true to make checkbox/radios selected
+   - `switch` - true to convert a checkbox into a toggle style
+   - `inline` - true to add `form-check-inline` to a checkbox style
+   - `reverse` - true to add `form-check-reverse` to checkbox style
+   - `input_label` - checkbox/radio specific label instead of the element's label
+   - `class_input_btn` - convert checkbox into a button style, must be one of btn- classes
+   - `class_check` - add custom class to checkbox/radio element
+   - `class_label` - to customize the label style, added to the default `form-label`
+   - `attrs_label` - attributes for the label element, an object
+   - `size_label` - set column width for the label
+   - `size_input` - set column width for the input
+   - `class_group` - to customize the group, example: `{ class_group: "row my-3 py-1 border-bottom" }` to set border and gaps for an element
+   - `attrs_group` - attributes for the group div, an object, example: `{ attrs_group: { id: "group1" } }`
+   - `class_prefix` and/or `text_prefix` - add as a first span to the group with a span with class/text
+   - `class_suffix` and/or `text_suffix` - make it the last div in the group with class/text
+   - `text_valid`, `text_invalid` - add divs for valid or invalid feedback, to be used with `validate` method
+   - `class_append` and/or `text_append` - append a span to an element, mostly for non-input entries
+   - `text_input_button` - add a button the element to perform an action on it, `data-formid` and `data-inputid` are set on the button with form and the input element ids for easy access in the callbacks, use `class_input_button` to change the button style, use `class_input_group` to change the input group style
+   - `attrs_input_button` - attributes to the input button, an object, usually `{ click: (ev) => {} }`
+   - `list_input_button` or `list_input_tags` - add a dropdown button with options to select and place into an input, use `class_list_button` to change the button style, use `class_input_group` to change the input group style, use `class_input_menu` to change the dropdown menu style, the list can be an Array of strings or objects `{ name:, value: }`. The `list_input_tags` adds a selected value in the list.
+
+
+
 ### `bootpopup` object
 
-The `bootpopup` object is returned every time a new instance of BootPopup is created.
+The `bootpopup` object is returned every time a new instance of Bootpopup is created.
 
 #### Properties
 
@@ -267,6 +310,7 @@ The `bootpopup` object is returned every time a new instance of BootPopup is cre
  - `escape(str)` - convert `&<>'"` into HTML entities
  - `close` - close popup window, i.e. call the `close` action
  - `data` - return form input as an  object `{ obj: {}, list: [] }` with all values from all inputs
+ - `validate` - run `checkValidity` and return the result
  - `callback(name)` - call a callback for the given action and return the result:
    - `dismiss` - perform a `dismiss`
    - `submit` - performs a `submit`
@@ -278,7 +322,7 @@ The `bootpopup` object is returned every time a new instance of BootPopup is cre
 
 #### DOM elements
 
-All the following BootPopup properties are native HTML elements:
+All the following Bootpopup properties are native HTML elements:
 
 - `modal` - entire window, including the fade background. You can use this property in the same way as described in [Bootstrap Modals Usage](https://getbootstrap.com/docs/javascript/#modals-usage)
 - `dialog` - entire window, without the background
@@ -380,3 +424,9 @@ Open `index.html` to see the library in action.
       },
   });
   ```
+
+See more [Examples](https://vseryakov.github.io/bootpoup/index.html).
+
+# Author
+
+Vlad Seryakov
