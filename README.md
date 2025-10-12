@@ -2,7 +2,7 @@
 
 Popup dialog boxes for Bootstrap5.
 
-See it in action in [Bootpopup - Examples](https://vseryakov.github.io/bootpoup/index.html).
+See it in action in [Bootpopup - Examples](https://vseryakov.github.io/bootpopup/index.html).
 
 
 _This project is a fork of https://rigon.github.io/bootpopup/_
@@ -102,7 +102,7 @@ Shows a customized dialog box. `bootpopup.alert`, `bootpopup.confirm` and `bootp
 | size        | string   | ``               | `lg`                | Size of the modal window. Values accepted: `sm`, ``, `lg`, `xl` ([Bootstrap Modal optional sizes](https://getbootstrap.com/docs/5.3/components/modal/#optional-sizes))
 | size_label  | string   | `col-sm-4`       | `col-lg-2`          | Any class name or list of classes to apply to labels in the form. Preferably classes from [Bootstrap Grid system](https://getbootstrap.com/docs/5.3/layout/grid/)
 | size_input  | string   | `col-sm-8`       | `col-lg-10`         | Any class name or list of classes to apply to inputs (div that wraps the input) in the form. Preferably classes from [Bootstrap Grid system](https://getbootstrap.com/docs/5.3/css/#grid)
-| onsubmit    | string   | `close`          | `ok`                | Default action to be executed when the form is sumitted. This is overrided if you define a callback for `submit`. The possible options are: `close`, `ok`, `cancel`, `yes`, `no`.
+| onsubmit    | string   | `close`          | `ok`                | Default action to be executed when the form is submitted. This is override if you define a callback for `submit`. The possible options are: `close`, `ok`, `cancel`, `yes`, `no`.
 | buttons     | array    | `["close"]`      | `[ "yes", "no"]`    | List of buttons to show in the bottom of the dialog box. The possible options are: `close`, `ok`, `cancel`, `yes`, `no`. Learn more [about the buttons option](#about-the-buttons-option)
 | before      | function | `function() {}`  | `function(popup) {}`| Called before the window is shown, but after being created. `popup` provides the instance to `bootpopup` object
 | dismiss     | function | `function() {}`  | `function(data) {}` | Called when the window is dismissed
@@ -122,7 +122,7 @@ Shows a customized dialog box. `bootpopup.alert`, `bootpopup.confirm` and `bootp
 | self        | object   | `bootpopup`      | `this`             | Pass a context to use for callback functions, default is the popup object.
 | debug       | boolean  | `false`          | `true`             | Log input values in the console
 | class_modal | `string` | `modal fade`     | `modal mt-5`       | Change default modal class, see [Modal](https://getbootstrap.com/docs/5.3/components/modal/#modal-components)
-| class_dialog | `string` | `modal-dialog`  | `modal-dialog mt-5` | Change default modal dfialog class
+| class_dialog | `string` | `modal-dialog`  | `modal-dialog mt-5` | Change default modal dialog class
 | class_title | `string` | `modal-title`  |  `modal-title text-break` | Change default modal title class
 | class_content | `string` | `modal-content | `modal-content bg-light` | Change default modal content class
 | class_body | `string` | `modal-body` | `modal-body p-0` | Change default modal body class
@@ -179,7 +179,7 @@ button callback is named the same, for example
   })
   ```
 
-  Now ok will be shown as Submit. With adhoc labeling this is not very usefull but still can be used for default buttons.
+  Now ok will be shown as Submit. With ad-hoc labeling this is not very useful but still can be used for default buttons.
 
 
 #### About the **content** option:
@@ -264,7 +264,7 @@ The biggest flexibility of Bootpopup is the `content` option. The content is wra
    - `text` - set element's `textContent`
    - `html` - parse and add DOM elements after running thru sanitizer
    - `autofocus` - make this element focused on show
-   - `nosanitize` - do not run sanitizer for labels or html if installed
+   - `nosanitize` - skip sanitizer for labels or html property if installed
    - `floating` - add `form-floating` to the group to make labels floating
    - `checked` - true to make checkbox/radios selected
    - `switch` - true to convert a checkbox into a toggle style
@@ -343,7 +343,7 @@ All the following Bootpopup properties are native HTML elements:
 Any ad-hoc button will be added in the form `btn_Label`.
 
 NOTE: All actions by default close the popup window, a callback must return `null` in order to keep the popup window
-visible, thisis useful when validating the input. Manually closing the popup is done via the `close` method.
+visible, this is useful when validating the input. Manually closing the popup is done via the `close` method.
 
 ## Build
 
@@ -425,7 +425,7 @@ Open `index.html` to see the library in action.
   });
   ```
 
-See more [Examples](https://vseryakov.github.io/bootpoup/index.html).
+See more [Examples](https://vseryakov.github.io/bootpopup/index.html).
 
 # Author
 
