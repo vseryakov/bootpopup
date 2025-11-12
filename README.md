@@ -31,7 +31,7 @@ _This project is a fork of https://rigon.github.io/bootpopup/_
 ### npm
 
 ```bash
-npm install @vseryakov/bootpopup5
+npm install bootpopup5
 ```
 
 ### cdn
